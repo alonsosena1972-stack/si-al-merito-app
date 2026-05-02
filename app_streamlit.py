@@ -29,27 +29,35 @@ def obtener_consecutivo():
 class PDF(FPDF):
 
     def header(self):
-        self.set_font("Arial", "B", 16)
-        self.set_text_color(0, 102, 0)
-        self.cell(0, 7, "SI AL MERITO", ln=True)
+    # --- LOGO SEGURO (no rompe si falla) ---
+    try:
+        if os.path.exists("logo.png"):
+            # pequeño, esquina superior derecha
+            self.image("logo.png", x=175, y=8, w=18)
+    except:
+        pass  # si algo pasa con la imagen, el PDF sigue normal
 
-        self.set_font("Arial", "", 10)
-        self.set_text_color(0, 0, 0)
+    # --- TITULO ---
+    self.set_font("Arial", "B", 16)
+    self.set_text_color(0, 100, 0)
+    self.cell(0, 8, "SI AL MERITO", ln=True)
 
-        self.cell(0, 5, "NIT: 7379694", ln=True)
-        self.cell(0, 5, "Cursos y Asesorias Especializadas", ln=True)
+    # --- DATOS EMPRESA ---
+    self.set_text_color(0, 0, 0)
+    self.set_font("Arial", "", 10)
+    self.cell(0, 5, "NIT: 7379694", ln=True)
+    self.cell(0, 5, "Cursos y Asesorias Especializadas", ln=True)
+    self.cell(0, 5, "WhatsApp: 3146715497 - 3153838792 - 3004417737", ln=True)
+    self.cell(0, 5, "Correo: si.al.merito2026@gmail.com", ln=True)
 
-        self.set_text_color(0, 128, 0)
-        self.cell(0, 5, "WhatsApp: 3146715497 - 3153838792 - 3004417737", ln=True)
-        self.cell(0, 5, "Correo: si.al.merito2026@gmail.com", ln=True)
+    # --- FECHA ---
+    fecha = datetime.now().strftime("%d/%m/%Y")
+    self.cell(0, 5, f"Fecha de generacion: {fecha}", ln=True)
 
-        self.set_text_color(0, 0, 0)
-        fecha = datetime.now().strftime("%d/%m/%Y")
-        self.cell(0, 5, f"Fecha de generacion: {fecha}", ln=True)
-
-        self.ln(1)
-        self.line(10, self.get_y(), 200, self.get_y())
-        self.ln(2)
+    # --- LINEA ---
+    self.ln(1)
+    self.line(10, self.get_y(), 200, self.get_y())
+    self.ln(3)
 
     def footer(self):
         self.set_y(-12)

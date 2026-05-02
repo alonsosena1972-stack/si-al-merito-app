@@ -7,7 +7,16 @@ OUTPUT_DIR = "output"
 CONTADOR_FILE = "contador.txt"
 
 # ===============================
-# CONTADOR DE ARCHIVOS
+# LIMPIEZA TOTAL (ANTI-EMOJIS)
+# ===============================
+def limpiar(texto):
+    if not texto:
+        return ""
+    return texto.encode("latin-1", "ignore").decode("latin-1")
+
+
+# ===============================
+# CONTADOR
 # ===============================
 def obtener_numero():
     if not os.path.exists(CONTADOR_FILE):
@@ -25,18 +34,18 @@ def obtener_numero():
 
 
 # ===============================
-# LEER TEMAS
+# TEMAS LIMPIOS
 # ===============================
 def leer_temas():
     if not os.path.exists("temas.txt"):
         return ["CONTROL INTERNO", "MECI"]
 
     with open("temas.txt", "r", encoding="utf-8") as f:
-        return [t.strip() for t in f.readlines() if t.strip()]
+        return [limpiar(t.strip()) for t in f.readlines() if t.strip()]
 
 
 # ===============================
-# PDF PERSONALIZADO
+# PDF
 # ===============================
 class PDF(FPDF):
 
@@ -55,7 +64,6 @@ class PDF(FPDF):
 
         self.set_text_color(0, 0, 0)
         self.cell(0, 6, "Correo: si.al.merito2026@gmail.com", ln=True)
-
         self.cell(0, 6, f"Fecha de generacion: {datetime.now().strftime('%d/%m/%Y')}", ln=True)
 
         self.ln(2)
@@ -73,6 +81,13 @@ class PDF(FPDF):
 # ===============================
 def generar_pdf(entidad, convocatoria, nivel, opec, cargo):
 
+    # LIMPIAR TODO (CLAVE)
+    entidad = limpiar(entidad)
+    convocatoria = limpiar(convocatoria)
+    nivel = limpiar(nivel)
+    opec = limpiar(opec)
+    cargo = limpiar(cargo)
+
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
 
@@ -86,7 +101,7 @@ def generar_pdf(entidad, convocatoria, nivel, opec, cargo):
     pdf = PDF()
     pdf.add_page()
 
-    # INFO DEL CONCURSO
+    # INFO
     pdf.set_font("Arial", "B", 13)
     pdf.cell(0, 8, "INFORMACION DEL CONCURSO", ln=True)
 
@@ -111,7 +126,6 @@ def generar_pdf(entidad, convocatoria, nivel, opec, cargo):
         pdf.set_font("Arial", "B", 11)
         pdf.cell(0, 6, f"{i}. Tema: {tema}", ln=True)
 
-        # 4 enlaces por tema
         enlaces = [
             f"https://www.youtube.com/results?search_query={tema.replace(' ', '+')}",
             f"https://www.youtube.com/results?search_query={tema.replace(' ', '+')}+clase",
@@ -126,7 +140,7 @@ def generar_pdf(entidad, convocatoria, nivel, opec, cargo):
             pdf.cell(5, 5, bullet)
 
             pdf.set_text_color(0, 0, 255)
-            pdf.cell(0, 5, url, ln=True)
+            pdf.cell(0, 5, limpiar(url), ln=True)
 
         pdf.ln(2)
 
@@ -136,7 +150,7 @@ def generar_pdf(entidad, convocatoria, nivel, opec, cargo):
 
 
 # ===============================
-# STREAMLIT UI
+# UI
 # ===============================
 st.title("SI AL MERITO - Generador de PDFs")
 

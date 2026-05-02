@@ -130,7 +130,12 @@ def generar_pdf(entidad, convocatoria, nivel, opec, cargo):
         for b in busquedas:
             query = b.replace(" ", "+")
             url = f"https://www.youtube.com/results?search_query={query}"
-            pdf.cell(0, 5, f"- {url}", ln=True)
+            bullet = chr(149)  # punto negro seguro para FPDF
+pdf.set_text_color(0, 0, 0)
+pdf.cell(5, 5, bullet)
+
+pdf.set_text_color(0, 0, 255)
+pdf.cell(0, 5, url, ln=True)
 
     # ===== FOOTER =====
     pdf.set_y(-15)

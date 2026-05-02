@@ -1,9 +1,10 @@
-import os
+import streamlit as st
 from fpdf import FPDF
+import os
 from datetime import datetime
 
 # =========================
-# CONTADOR PDF
+# CONTADOR
 # =========================
 def obtener_consecutivo():
     archivo = "contador.txt"
@@ -21,7 +22,7 @@ def obtener_consecutivo():
 
 
 # =========================
-# CLASE PDF
+# PDF
 # =========================
 class PDF(FPDF):
 
@@ -44,9 +45,9 @@ class PDF(FPDF):
         fecha = datetime.now().strftime("%d/%m/%Y")
         self.cell(0, 5, f"Fecha de generacion: {fecha}", ln=True)
 
-        self.ln(2)  # 🔥 espacio mínimo
+        self.ln(2)
         self.line(10, self.get_y(), 200, self.get_y())
-        self.ln(3)  # 🔥 pegado fino
+        self.ln(3)
 
     def footer(self):
         self.set_y(-12)
@@ -62,50 +63,45 @@ def generar_pdf(entidad, convocatoria, nivel, opec, cargo):
     os.makedirs("output", exist_ok=True)
     consecutivo = obtener_consecutivo()
 
-    nombre_archivo = f"output/{consecutivo}_OPEC_{opec}_{cargo.upper()}_{entidad.upper()}_{convocatoria}.pdf"
+    nombre = f"output/{consecutivo}_OPEC_{opec}_{cargo.upper()}_{entidad.upper()}_{convocatoria}.pdf"
 
     pdf = PDF()
     pdf.add_page()
 
-    # =========================
-    # INFORMACION DEL CONCURSO
-    # =========================
+    # INFO
     pdf.set_font("Arial", "B", 13)
     pdf.cell(0, 6, "INFORMACION DEL CONCURSO", ln=True)
 
-    pdf.ln(1)  # 🔥 reducido
-
     pdf.set_font("Arial", "", 11)
+    pdf.ln(1)
+
     pdf.cell(0, 5, f"Entidad: {entidad}", ln=True)
     pdf.cell(0, 5, f"Convocatoria: {convocatoria}", ln=True)
     pdf.cell(0, 5, f"Nivel: {nivel}", ln=True)
     pdf.cell(0, 5, f"Cargo: {cargo}", ln=True)
     pdf.cell(0, 5, f"OPEC: {opec}", ln=True)
 
-    pdf.ln(2)  # 🔥 antes era 5 → ahora fino
+    pdf.ln(2)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-    pdf.ln(3)  # 🔥 pegado correcto
+    pdf.ln(3)
 
-    # =========================
     # TEMAS
-    # =========================
     pdf.set_font("Arial", "B", 13)
     pdf.cell(0, 6, "TEMAS DE ESTUDIO", ln=True)
 
     pdf.ln(1)
 
     temas = []
-    with open("temas.txt", "r", encoding="utf-8") as f:
-        temas = [t.strip() for t in f if t.strip()]
+    if os.path.exists("temas.txt"):
+        with open("temas.txt", "r", encoding="utf-8") as f:
+            temas = [t.strip() for t in f if t.strip()]
 
     for i, tema in enumerate(temas, 1):
 
-        # 🔥 TITULO NEGRO
         pdf.set_font("Arial", "B", 11)
         pdf.set_text_color(0, 0, 0)
         pdf.cell(0, 5, f"{i}. Tema: {tema}", ln=True)
 
-        # 🔥 LINKS (4 VARIANTES)
         variantes = [
             tema,
             f"{tema} clase",
@@ -116,17 +112,36 @@ def generar_pdf(entidad, convocatoria, nivel, opec, cargo):
         for v in variantes:
             url = f"https://www.youtube.com/results?search_query={v.replace(' ', '+')}"
 
-            # viñeta negra
             pdf.set_text_color(0, 0, 0)
-            pdf.set_font("Arial", "", 10)
             pdf.cell(5, 4, chr(149))
 
-            # link azul
             pdf.set_text_color(0, 0, 255)
             pdf.cell(0, 4, url, ln=True)
 
-        pdf.ln(1)  # 🔥 compacto entre temas
+        pdf.ln(1)
 
-    pdf.output(nombre_archivo)
+    pdf.output(nombre)
+    return nombre
 
-    return nombre_archivo
+
+# =========================
+# INTERFAZ STREAMLIT
+# =========================
+st.title("SI AL MERITO - Generador de PDFs")
+
+entidad = st.text_input("Entidad")
+convocatoria = st.text_input("Convocatoria")
+nivel = st.text_input("Nivel")
+opec = st.text_input("OPEC")
+cargo = st.text_input("Cargo")
+
+if st.button("Generar PDF"):
+
+    if not entidad or not convocatoria or not nivel or not opec or not cargo:
+        st.warning("Completa todos los campos")
+    else:
+        try:
+            ruta = generar_pdf(entidad, convocatoria, nivel, opec, cargo)
+            st.success(f"PDF generado correctamente en: {ruta}")
+        except Exception as e:
+            st.error(f"Error: {e}")

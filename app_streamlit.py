@@ -3,13 +3,14 @@ from fpdf import FPDF
 import io
 
 # ==============================
-# 🧠 LIMPIAR TEXTO (EVITA ERRORES UTF)
+# LIMPIAR TEXTO (EVITA ERRORES)
 # ==============================
 def limpiar_pdf(texto):
-    return texto.encode('latin-1', 'replace').decode('latin-1')
+    texto = str(texto)
+    return texto.encode('latin-1', 'ignore').decode('latin-1')
 
 # ==============================
-# 📂 LEER TEMAS
+# LEER TEMAS
 # ==============================
 def leer_temas():
     try:
@@ -19,14 +20,14 @@ def leer_temas():
         return ["Control fiscal en Colombia", "Función pública Colombia"]
 
 # ==============================
-# 📄 CLASE PDF (HEADER PRO)
+# CLASE PDF
 # ==============================
 class PDF(FPDF):
 
     def header(self):
         self.set_font("Arial", "B", 12)
 
-        texto1 = "SÍ AL MÉRITO"
+        texto1 = "SI AL MERITO"
         texto2 = " - ASESORIAS - NIT. 7.379.694"
 
         ancho_total = self.get_string_width(texto1 + texto2)
@@ -42,7 +43,7 @@ class PDF(FPDF):
         self.multi_cell(
             0,
             5,
-            "CONCURSOS DE CARRERA ADMINISTRATIVA PARA BACHILLERES, TECNICOS, TECNOLOGOS Y PROFESIONALES",
+            "CONCURSOS DE CARRERA ADMINISTRATIVA",
             align="C"
         )
 
@@ -53,10 +54,10 @@ class PDF(FPDF):
     def footer(self):
         self.set_y(-15)
         self.set_font("Arial", "I", 9)
-        self.cell(0, 10, f"Página {self.page_no()}", align="C")
+        self.cell(0, 10, f"Pagina {self.page_no()}", align="C")
 
 # ==============================
-# 📄 GENERAR PDF EN MEMORIA
+# GENERAR PDF EN MEMORIA
 # ==============================
 def generar_pdf_bytes(entidad, convocatoria, nivel, opec, cargo):
 
@@ -90,19 +91,19 @@ def generar_pdf_bytes(entidad, convocatoria, nivel, opec, cargo):
     return pdf_bytes
 
 # ==============================
-# 🖥️ INTERFAZ STREAMLIT
+# INTERFAZ
 # ==============================
-st.set_page_config(page_title="SI AL MÉRITO", layout="centered")
+st.set_page_config(page_title="SI AL MERITO", layout="centered")
 
-st.title("📚 SI AL MÉRITO - Generador de PDFs")
+st.title("SI AL MERITO - Generador de PDFs")
 
 entidad = st.text_input("Entidad")
 convocatoria = st.text_input("Convocatoria")
 nivel = st.text_input("Nivel")
 opec = st.text_input("OPEC")
-cargo = st.text_input("Cargo (nombre del empleo)")
+cargo = st.text_input("Cargo")
 
-if st.button("🚀 Generar PDF"):
+if st.button("Generar PDF"):
     if entidad and convocatoria and nivel and opec and cargo:
 
         pdf_bytes = generar_pdf_bytes(entidad, convocatoria, nivel, opec, cargo)
@@ -110,11 +111,11 @@ if st.button("🚀 Generar PDF"):
         nombre = f"OPEC_{opec}_{cargo}.pdf"
 
         st.download_button(
-            label="📥 Descargar PDF",
+            label="Descargar PDF",
             data=pdf_bytes,
             file_name=nombre,
             mime="application/pdf"
         )
 
     else:
-        st.warning("⚠️ Completa todos los campos")
+        st.warning("Completa todos los campos")

@@ -1,4 +1,4 @@
-📁 CONTROL INTERNO
+CONTROL INTERNO
 Control_interno
 MECI
 Auditoria_interna
@@ -14,7 +14,7 @@ Seguimiento_y_evaluacion
 Indicadores_de_control
 Sistema_de_control_interno
 Responsabilidad_fiscal
-📁 TALENTO HUMANO / EMPLEO PUBLICO
+TALENTO HUMANO / EMPLEO PUBLICO
 Empleo_publico
 Carrera_administrativa
 Ley_909_de_2004
@@ -30,7 +30,7 @@ Inhabilidades_e_incompatibilidades
 Situaciones_administrativas
 Capacitacion_del_talento_humano
 Gestion_del_talento_humano
-📁 CONTRATACION ESTATAL
+CONTRATACION ESTATAL
 Contratacion_estatal
 Ley_80_de_1993
 Ley_1150_de_2007
@@ -45,7 +45,7 @@ Supervision_e_interventoria
 Riesgos_en_contratacion
 Transparencia_en_contratacion
 Principios_de_contratacion
-📁 DERECHO ADMINISTRATIVO
+DERECHO ADMINISTRATIVO
 Derecho_administrativo
 Acto_administrativo
 Silencio_administrativo
@@ -59,7 +59,7 @@ Accion_de_nulidad
 Accion_de_reparacion_directa
 Accion_de_cumplimiento
 Codigo_de_procedimiento_administrativo
-📁 GESTION PUBLICA
+GESTION PUBLICA
 Gestion_publica
 Planeacion_estrategica
 Plan_de_desarrollo
@@ -83,7 +83,7 @@ Vigencias_futuras
 Marco_fiscal_de_mediano_plazo
 Sistema_general_de_regalias
 Contabilidad_publica
-📁 SERVICIO AL CIUDADANO
+SERVICIO AL CIUDADANO
 Servicio_al_ciudadano
 Atencion_al_usuario
 PQRS
@@ -94,7 +94,7 @@ Transparencia
 Acceso_a_la_informacion
 Lenguaje_claro
 Cultura_del_servicio
-📁 ETICA Y CONTROL DISCIPLINARIO
+ETICA Y CONTROL DISCIPLINARIO
 Etica_publica
 Codigo_de_integridad
 Transparencia_administrativa
@@ -105,7 +105,7 @@ Control_disciplinario
 Ley_734_de_2002
 Ley_1952_de_2019
 Prevencion_de_la_corrupcion
-📁 GOBIERNO DIGITAL
+GOBIERNO DIGITAL
 Gobierno_digital
 Datos_abiertos
 Seguridad_de_la_informacion
@@ -116,7 +116,7 @@ Interoperabilidad
 Arquitectura_TI
 Gestion_de_tecnologias
 Politica_de_gobierno_digital
-📁 GESTION DOCUMENTAL
+GESTION DOCUMENTAL
 Gestion_documental
 Archivo_general_de_la_nacion
 Tablas_de_retencion_documental

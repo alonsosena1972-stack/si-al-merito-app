@@ -3,19 +3,20 @@ from fpdf import FPDF
 import os
 from datetime import datetime
 
+# ===== CONFIG =====
 OUTPUT_DIR = "output"
 CONTADOR_FILE = "contador.txt"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
-# ===== LIMPIADOR DE TEXTO (CLAVE) =====
-def limpiar_texto(texto):
-    return texto.encode("latin-1", "ignore").decode("latin-1")
+# ===== UTIL =====
+def limpiar_texto(texto: str) -> str:
+    # Elimina caracteres que rompen FPDF (latin-1)
+    return (texto or "").encode("latin-1", "ignore").decode("latin-1")
 
 
-# ===== CONTADOR =====
-def obtener_numero():
+def obtener_numero() -> int:
     if not os.path.exists(CONTADOR_FILE):
         with open(CONTADOR_FILE, "w") as f:
             f.write("1")
@@ -29,11 +30,25 @@ def obtener_numero():
     return numero
 
 
+def normalizar_tema(tema: str) -> str:
+    # Convierte "control_interno" -> "Control Interno"
+    t = tema.replace("_", " ").strip()
+    return t.title()
+
+
+def generar_busquedas(tema: str):
+    # 4 variaciones útiles por tema
+    base = tema.replace("_", " ").strip()
+    return [
+        base,
+        base + " Colombia",
+        base + " explicacion",
+        base + " ejemplos",
+    ]
+
+
 # ===== PDF =====
 def generar_pdf(entidad, convocatoria, nivel, opec, cargo):
-
-    pdf = FPDF()
-    pdf.add_page()
 
     # limpiar inputs
     entidad = limpiar_texto(entidad)
@@ -41,6 +56,10 @@ def generar_pdf(entidad, convocatoria, nivel, opec, cargo):
     nivel = limpiar_texto(nivel)
     opec = limpiar_texto(opec)
     cargo = limpiar_texto(cargo)
+
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
 
     # ===== HEADER =====
     pdf.set_font("Arial", "B", 18)
@@ -61,11 +80,13 @@ def generar_pdf(entidad, convocatoria, nivel, opec, cargo):
     fecha = datetime.now().strftime("%d/%m/%Y")
     pdf.cell(0, 6, f"Fecha de generacion: {fecha}", ln=True)
 
+    # línea superior (compacta)
     pdf.ln(2)
-    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+    y = pdf.get_y()
+    pdf.line(10, y, 200, y)
 
-    # ===== INFO =====
-    pdf.ln(5)
+    # ===== INFO CONCURSO =====
+    pdf.ln(4)
     pdf.set_font("Arial", "B", 13)
     pdf.cell(0, 8, "INFORMACION DEL CONCURSO", ln=True)
 
@@ -76,11 +97,13 @@ def generar_pdf(entidad, convocatoria, nivel, opec, cargo):
     pdf.cell(0, 6, f"Cargo: {cargo}", ln=True)
     pdf.cell(0, 6, f"OPEC: {opec}", ln=True)
 
+    # línea inferior (compacta)
     pdf.ln(2)
-    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+    y = pdf.get_y()
+    pdf.line(10, y, 200, y)
 
     # ===== TEMAS =====
-    pdf.ln(5)
+    pdf.ln(4)
     pdf.set_font("Arial", "B", 13)
     pdf.cell(0, 8, "TEMAS DE ESTUDIO", ln=True)
 
@@ -93,13 +116,21 @@ def generar_pdf(entidad, convocatoria, nivel, opec, cargo):
 
     for i, tema in enumerate(temas, 1):
         pdf.ln(2)
+        pdf.set_text_color(0, 0, 0)
         pdf.set_font("Arial", "B", 11)
-        pdf.cell(0, 6, f"{i}. Tema: {tema}", ln=True)
+
+        titulo = normalizar_tema(tema)
+        pdf.cell(0, 6, f"{i}. Tema: {titulo}", ln=True)
 
         pdf.set_font("Arial", "", 10)
-        url = f"https://www.youtube.com/results?search_query={tema.replace(' ', '+')}"
         pdf.set_text_color(0, 0, 255)
-        pdf.cell(0, 5, f"- {url}", ln=True)
+
+        busquedas = generar_busquedas(tema)
+
+        for b in busquedas:
+            query = b.replace(" ", "+")
+            url = f"https://www.youtube.com/results?search_query={query}"
+            pdf.cell(0, 5, f"- {url}", ln=True)
 
     # ===== FOOTER =====
     pdf.set_y(-15)
@@ -109,14 +140,13 @@ def generar_pdf(entidad, convocatoria, nivel, opec, cargo):
 
     # ===== GUARDAR =====
     numero = obtener_numero()
-    nombre = f"{OUTPUT_DIR}/{numero}_OPEC_{opec}_{cargo.replace(' ', '_')}.pdf"
+    nombre_archivo = f"{OUTPUT_DIR}/{numero}_OPEC_{opec}_{cargo.replace(' ', '_')}.pdf"
+    pdf.output(nombre_archivo)
 
-    pdf.output(nombre)
-
-    return nombre
+    return nombre_archivo
 
 
-# ===== INTERFAZ =====
+# ===== UI =====
 st.title("SI AL MERITO - Generador de PDFs")
 
 entidad = st.text_input("Entidad")

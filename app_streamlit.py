@@ -1,165 +1,132 @@
-import streamlit as st
-from fpdf import FPDF
 import os
+from fpdf import FPDF
 from datetime import datetime
 
-OUTPUT_DIR = "output"
-CONTADOR_FILE = "contador.txt"
-
-# ===============================
-# LIMPIEZA TOTAL (ANTI-EMOJIS)
-# ===============================
-def limpiar(texto):
-    if not texto:
-        return ""
-    return texto.encode("latin-1", "ignore").decode("latin-1")
-
-
-# ===============================
-# CONTADOR
-# ===============================
-def obtener_numero():
-    if not os.path.exists(CONTADOR_FILE):
-        with open(CONTADOR_FILE, "w") as f:
+# =========================
+# CONTADOR PDF
+# =========================
+def obtener_consecutivo():
+    archivo = "contador.txt"
+    if not os.path.exists(archivo):
+        with open(archivo, "w") as f:
             f.write("1")
-        return 1
 
-    with open(CONTADOR_FILE, "r") as f:
-        numero = int(f.read().strip())
+    with open(archivo, "r") as f:
+        num = int(f.read().strip())
 
-    with open(CONTADOR_FILE, "w") as f:
-        f.write(str(numero + 1))
+    with open(archivo, "w") as f:
+        f.write(str(num + 1))
 
-    return numero
-
-
-# ===============================
-# TEMAS LIMPIOS
-# ===============================
-def leer_temas():
-    if not os.path.exists("temas.txt"):
-        return ["CONTROL INTERNO", "MECI"]
-
-    with open("temas.txt", "r", encoding="utf-8") as f:
-        return [limpiar(t.strip()) for t in f.readlines() if t.strip()]
+    return num
 
 
-# ===============================
-# PDF
-# ===============================
+# =========================
+# CLASE PDF
+# =========================
 class PDF(FPDF):
 
     def header(self):
         self.set_font("Arial", "B", 16)
-        self.set_text_color(0, 100, 0)
-        self.cell(0, 10, "SI AL MERITO", ln=True)
+        self.set_text_color(0, 102, 0)
+        self.cell(0, 8, "SI AL MERITO", ln=True)
 
-        self.set_font("Arial", "", 11)
+        self.set_font("Arial", "", 10)
         self.set_text_color(0, 0, 0)
-        self.cell(0, 6, "NIT: 7379694", ln=True)
-        self.cell(0, 6, "Cursos y Asesorias Especializadas", ln=True)
 
-        self.set_text_color(0, 120, 0)
-        self.cell(0, 6, "WhatsApp: 3146715497 - 3153838792 - 3004417737", ln=True)
+        self.cell(0, 5, "NIT: 7379694", ln=True)
+        self.cell(0, 5, "Cursos y Asesorias Especializadas", ln=True)
+
+        self.set_text_color(0, 128, 0)
+        self.cell(0, 5, "WhatsApp: 3146715497 - 3153838792 - 3004417737", ln=True)
+        self.cell(0, 5, "Correo: si.al.merito2026@gmail.com", ln=True)
 
         self.set_text_color(0, 0, 0)
-        self.cell(0, 6, "Correo: si.al.merito2026@gmail.com", ln=True)
-        self.cell(0, 6, f"Fecha de generacion: {datetime.now().strftime('%d/%m/%Y')}", ln=True)
+        fecha = datetime.now().strftime("%d/%m/%Y")
+        self.cell(0, 5, f"Fecha de generacion: {fecha}", ln=True)
 
-        self.ln(2)
+        self.ln(2)  # 🔥 espacio mínimo
         self.line(10, self.get_y(), 200, self.get_y())
-        self.ln(5)
+        self.ln(3)  # 🔥 pegado fino
 
     def footer(self):
-        self.set_y(-15)
+        self.set_y(-12)
         self.set_font("Arial", "I", 8)
-        self.cell(0, 10, f"Pagina {self.page_no()} | SI AL MERITO", align="C")
+        self.cell(0, 5, f"Pagina {self.page_no()} - SI AL MERITO", align="C")
 
 
-# ===============================
+# =========================
 # GENERAR PDF
-# ===============================
+# =========================
 def generar_pdf(entidad, convocatoria, nivel, opec, cargo):
 
-    # LIMPIAR TODO (CLAVE)
-    entidad = limpiar(entidad)
-    convocatoria = limpiar(convocatoria)
-    nivel = limpiar(nivel)
-    opec = limpiar(opec)
-    cargo = limpiar(cargo)
+    os.makedirs("output", exist_ok=True)
+    consecutivo = obtener_consecutivo()
 
-    if not os.path.exists(OUTPUT_DIR):
-        os.makedirs(OUTPUT_DIR)
-
-    numero = obtener_numero()
-
-    entidad_clean = entidad.replace(" ", "_").upper()
-    cargo_clean = cargo.replace(" ", "_").upper()
-
-    nombre_archivo = f"{OUTPUT_DIR}/{numero}_OPEC_{opec}_{cargo_clean}_{entidad_clean}_{convocatoria}.pdf"
+    nombre_archivo = f"output/{consecutivo}_OPEC_{opec}_{cargo.upper()}_{entidad.upper()}_{convocatoria}.pdf"
 
     pdf = PDF()
     pdf.add_page()
 
-    # INFO
+    # =========================
+    # INFORMACION DEL CONCURSO
+    # =========================
     pdf.set_font("Arial", "B", 13)
-    pdf.cell(0, 8, "INFORMACION DEL CONCURSO", ln=True)
+    pdf.cell(0, 6, "INFORMACION DEL CONCURSO", ln=True)
+
+    pdf.ln(1)  # 🔥 reducido
 
     pdf.set_font("Arial", "", 11)
-    pdf.cell(0, 6, f"Entidad: {entidad}", ln=True)
-    pdf.cell(0, 6, f"Convocatoria: {convocatoria}", ln=True)
-    pdf.cell(0, 6, f"Nivel: {nivel}", ln=True)
-    pdf.cell(0, 6, f"Cargo: {cargo}", ln=True)
-    pdf.cell(0, 6, f"OPEC: {opec}", ln=True)
+    pdf.cell(0, 5, f"Entidad: {entidad}", ln=True)
+    pdf.cell(0, 5, f"Convocatoria: {convocatoria}", ln=True)
+    pdf.cell(0, 5, f"Nivel: {nivel}", ln=True)
+    pdf.cell(0, 5, f"Cargo: {cargo}", ln=True)
+    pdf.cell(0, 5, f"OPEC: {opec}", ln=True)
 
-    pdf.ln(2)
+    pdf.ln(2)  # 🔥 antes era 5 → ahora fino
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-    pdf.ln(5)
+    pdf.ln(3)  # 🔥 pegado correcto
 
+    # =========================
     # TEMAS
+    # =========================
     pdf.set_font("Arial", "B", 13)
-    pdf.cell(0, 8, "TEMAS DE ESTUDIO", ln=True)
+    pdf.cell(0, 6, "TEMAS DE ESTUDIO", ln=True)
 
-    temas = leer_temas()
+    pdf.ln(1)
+
+    temas = []
+    with open("temas.txt", "r", encoding="utf-8") as f:
+        temas = [t.strip() for t in f if t.strip()]
 
     for i, tema in enumerate(temas, 1):
-        pdf.set_font("Arial", "B", 11)
-        pdf.cell(0, 6, f"{i}. Tema: {tema}", ln=True)
 
-        enlaces = [
-            f"https://www.youtube.com/results?search_query={tema.replace(' ', '+')}",
-            f"https://www.youtube.com/results?search_query={tema.replace(' ', '+')}+clase",
-            f"https://www.youtube.com/results?search_query={tema.replace(' ', '+')}+explicacion",
-            f"https://www.youtube.com/results?search_query={tema.replace(' ', '+')}+ejemplos",
+        # 🔥 TITULO NEGRO
+        pdf.set_font("Arial", "B", 11)
+        pdf.set_text_color(0, 0, 0)
+        pdf.cell(0, 5, f"{i}. Tema: {tema}", ln=True)
+
+        # 🔥 LINKS (4 VARIANTES)
+        variantes = [
+            tema,
+            f"{tema} clase",
+            f"{tema} explicacion",
+            f"{tema} ejemplos"
         ]
 
-        for url in enlaces:
-            bullet = chr(149)
+        for v in variantes:
+            url = f"https://www.youtube.com/results?search_query={v.replace(' ', '+')}"
 
+            # viñeta negra
             pdf.set_text_color(0, 0, 0)
-            pdf.cell(5, 5, bullet)
+            pdf.set_font("Arial", "", 10)
+            pdf.cell(5, 4, chr(149))
 
+            # link azul
             pdf.set_text_color(0, 0, 255)
-            pdf.cell(0, 5, limpiar(url), ln=True)
+            pdf.cell(0, 4, url, ln=True)
 
-        pdf.ln(2)
+        pdf.ln(1)  # 🔥 compacto entre temas
 
     pdf.output(nombre_archivo)
 
     return nombre_archivo
-
-
-# ===============================
-# UI
-# ===============================
-st.title("SI AL MERITO - Generador de PDFs")
-
-entidad = st.text_input("Entidad")
-convocatoria = st.text_input("Convocatoria")
-nivel = st.text_input("Nivel")
-opec = st.text_input("OPEC")
-cargo = st.text_input("Cargo")
-
-if st.button("Generar PDF"):
-    ruta = generar_pdf(entidad, convocatoria, nivel, opec, cargo)
-    st.success(f"PDF generado en: {ruta}")
